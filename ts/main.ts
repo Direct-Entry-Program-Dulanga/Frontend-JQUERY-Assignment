@@ -44,13 +44,21 @@ $('#btn-save').on('click', (eventData) => {
     }
 
     function existCustomer(id: string): boolean{
-        let result: boolean = false;
-        $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
-            if($(elm).text() === id){
-                result = true;
+        // let result: boolean = false;
+        // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
+        //     if($(elm).text() === id){
+        //         result = true;
+        //     }
+        // });
+        // return result ;
+
+        const ids = $("#tbl-customers tbody tr td:first-child");
+        for(let i=0; i< ids.length; i++){
+            if($(ids[i]).text() === id){
+                return true;
             }
-        });
-        return result;
+        }
+        return false;
     }
 
     const rowHtml = `

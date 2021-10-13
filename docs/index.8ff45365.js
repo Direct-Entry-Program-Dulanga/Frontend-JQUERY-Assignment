@@ -491,11 +491,18 @@ _jqueryDefault.default('#btn-save').on('click', (eventData)=>{
         return;
     }
     function existCustomer(id1) {
-        let result = false;
-        _jqueryDefault.default("#tbl-customers tbody tr td:first-child").each((index, elm)=>{
-            if (_jqueryDefault.default(elm).text() === id1) result = true;
-        });
-        return result;
+        // let result: boolean = false;
+        // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
+        //     if($(elm).text() === id){
+        //         result = true;
+        //     }
+        // });
+        // return result ;
+        const ids = _jqueryDefault.default("#tbl-customers tbody tr td:first-child");
+        for(let i = 0; i < ids.length; i++){
+            if (_jqueryDefault.default(ids[i]).text() === id1) return true;
+        }
+        return false;
     }
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
