@@ -8,9 +8,9 @@ $('#btn-save').on('click', () => {
     const txtName = $('#txt-name');
     const txtAddress = $('#txt-address');
 
-    const id = (txtId.val() as string).trim();
-    const name = (txtName.val() as string).trim();
-    const address = (txtAddress.val() as string).trim();
+    const id = txtId.val() as string;
+    const name = txtName.val() as string;
+    const address = txtAddress.val() as string;
 
     let valid = true;
 
@@ -44,12 +44,29 @@ $('#btn-save').on('click', () => {
     $('#tbl-customers tbody').append(rowHtml);
     showOrHideTfoot();
 
-    $(".trash").off('click');
-    $(".trash").on('click', (eventData) => {
+    $('#tbl-customers tbody tr').off('click').on('click', function() {
+          $('#tbl-customers tbody tr').removeClass('selected');
+          $(this).addClass('selected');
+
+          const id = $(this).find("td:first-child").text();
+          const name = $(this).find("td:nth-child(2)").text();
+          const address = $(this).find("td:nth-child(3)").text();
+
+          $("#tbl-customers tbody tr").removeClass("selected");
+          $(this).addClass('selected');
+    });
+
+
+    $(".trash").off('click').on('click', (eventData) => {
         if(confirm('Are you sure to delete ?')){
-            $(eventData.target).parents("tr").remove();
+            $(eventData.target).parents("tr").fadeOut(500, function(){
+                $(this).remove();
+                showOrHideTfoot();
+            });
         }
     });
+
+
 });
 
 
