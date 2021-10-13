@@ -42,4 +42,8 @@ $('#btn-save').on('click', () => {
     `;
 
     $('#tbl-customers tbody').append(rowHtml);
-})
+});
+
+function showOrHideTfoot(){
+    ($('#tbl-customers tbody tr').length > 0)? $('#tbl-customers tfoot').hide(): $('#tbl-customers tfoot').show();
+}

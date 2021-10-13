@@ -485,6 +485,9 @@ _jqueryDefault.default('#btn-save').on('click', ()=>{
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
 });
+function showOrHideTfoot() {
+    _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
+}
 
 },{"jquery":"igaHu","../img/trash.png":"cOtjz","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"igaHu":[function(require,module,exports) {
 /*!
