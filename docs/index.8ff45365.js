@@ -484,6 +484,11 @@ _jqueryDefault.default('#btn-save').on('click', ()=>{
     // if(!valid) return;
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
+    showOrHideTfoot();
+    _jqueryDefault.default(".trash").off('click');
+    _jqueryDefault.default(".trash").on('click', (eventData)=>{
+        if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData.target).parents("tr").remove();
+    });
 });
 function showOrHideTfoot() {
     _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
