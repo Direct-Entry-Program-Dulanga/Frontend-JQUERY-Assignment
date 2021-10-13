@@ -460,14 +460,16 @@ var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 var _trashPng = require("../img/trash.png");
 _jqueryDefault.default('#txt-id').trigger('focus');
-_jqueryDefault.default('#btn-save').on('click', ()=>{
+_jqueryDefault.default('#btn-save').on('click', (eventData)=>{
+    eventData.preventDefault();
     const txtId = _jqueryDefault.default('#txt-id');
     const txtName = _jqueryDefault.default('#txt-name');
     const txtAddress = _jqueryDefault.default('#txt-address');
-    const id = txtId.val();
-    const name = txtName.val();
-    const address = txtAddress.val();
+    const id = txtId.val().trim();
+    const name = txtName.val().trim();
+    const address = txtAddress.val().trim();
     let valid = true;
+    _jqueryDefault.default('#txd-id, #txt-name, #txt-address').parent().removeClass('invalid');
     // $('#txt-id, #txt-name, #txt-address').parent().removeClass('invalid');
     // if(!/^C\d{3}$/.test(id.trim())){
     //     txtId.parent().addClass('invalid').trigger('select');
@@ -482,20 +484,36 @@ _jqueryDefault.default('#btn-save').on('click', ()=>{
     //     valid = false;
     // }
     // if(!valid) return;
+    if (txtId.attr('disabled')) {
+        const selectedRow = _jqueryDefault.default("#tbl-customers tbody tr.selected");
+        selectedRow.find("td:nth-child(2)").text(name);
+        selectedRow.find("td:nth-child(3)").text(address);
+        return;
+    }
+    function existCustomer(id1) {
+        let result = false;
+        _jqueryDefault.default("#tbl-customers tbody tr td:first-child").each((index, elm)=>{
+            if (_jqueryDefault.default(elm).text() === id1) result = true;
+        });
+        return result;
+    }
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
     showOrHideTfoot();
+    _jqueryDefault.default("#btn-clear").trigger('click');
     _jqueryDefault.default('#tbl-customers tbody tr').off('click').on('click', function() {
-        _jqueryDefault.default('#tbl-customers tbody tr').removeClass('selected');
-        _jqueryDefault.default(this).addClass('selected');
         const id1 = _jqueryDefault.default(this).find("td:first-child").text();
         const name1 = _jqueryDefault.default(this).find("td:nth-child(2)").text();
         const address1 = _jqueryDefault.default(this).find("td:nth-child(3)").text();
+        txtId.val(id1);
+        txtId.attr('disabled', "true");
+        txtName.val(name1);
+        txtAddress.val(address1);
         _jqueryDefault.default("#tbl-customers tbody tr").removeClass("selected");
         _jqueryDefault.default(this).addClass('selected');
     });
-    _jqueryDefault.default(".trash").off('click').on('click', (eventData)=>{
-        if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData.target).parents("tr").fadeOut(500, function() {
+    _jqueryDefault.default(".trash").off('click').on('click', (eventData1)=>{
+        if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData1.target).parents("tr").fadeOut(500, function() {
             _jqueryDefault.default(this).remove();
             showOrHideTfoot();
         });
@@ -504,6 +522,11 @@ _jqueryDefault.default('#btn-save').on('click', ()=>{
 function showOrHideTfoot() {
     _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
 }
+_jqueryDefault.default('#btn-clear').on('click', ()=>{
+    _jqueryDefault.default("#tbl-customers tbody tr.selected").removeClass('selected');
+    _jqueryDefault.default('#txt-id').attr('disabled', 'false');
+    _jqueryDefault.default('#txt-id').removeAttr('disabled').trigger('focus');
+});
 
 },{"jquery":"igaHu","../img/trash.png":"cOtjz","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"igaHu":[function(require,module,exports) {
 /*!
