@@ -460,7 +460,7 @@ var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 var _trashPng = require("../img/trash.png");
 _jqueryDefault.default('#txt-id').trigger('focus');
-_jqueryDefault.default('#btn-save').on('click', (eventData)=>{
+/* Add or Update Row */ _jqueryDefault.default('#btn-save').on('click', (eventData)=>{
     eventData.preventDefault();
     const txtId = _jqueryDefault.default('#txt-id');
     const txtName = _jqueryDefault.default('#txt-name');
@@ -470,70 +470,85 @@ _jqueryDefault.default('#btn-save').on('click', (eventData)=>{
     const address = txtAddress.val().trim();
     let valid = true;
     _jqueryDefault.default('#txd-id, #txt-name, #txt-address').parent().removeClass('invalid');
-    // $('#txt-id, #txt-name, #txt-address').parent().removeClass('invalid');
-    // if(!/^C\d{3}$/.test(id.trim())){
-    //     txtId.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-    // if(!/[A-Za-z .]{3,}/.test(name)){
-    //     txtName.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-    // if(!(/[A-Za-z .]/.test(address) && address.length > 3)){
-    //     txtAddress.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-    // if(!valid) return;
+    if (!(/[A-Za-z .]/.test(address) && address.length > 3)) {
+        txtAddress.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
+    if (!/[A-Za-z .]{3,}/.test(name)) {
+        txtName.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
+    if (!/^C\d{3}$/.test(id.trim())) {
+        txtId.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
+    if (!valid) return;
     if (txtId.attr('disabled')) {
         const selectedRow = _jqueryDefault.default("#tbl-customers tbody tr.selected");
         selectedRow.find("td:nth-child(2)").text(name);
         selectedRow.find("td:nth-child(3)").text(address);
         return;
     }
-    function existCustomer(id1) {
-        // let result: boolean = false;
-        // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
-        //     if($(elm).text() === id){
-        //         result = true;
-        //     }
-        // });
-        // return result ;
-        const ids = _jqueryDefault.default("#tbl-customers tbody tr td:first-child");
-        for(let i = 0; i < ids.length; i++){
-            if (_jqueryDefault.default(ids[i]).text() === id1) return true;
-        }
-        return false;
+    if (existCustomer(id)) {
+        alert("Customer already exists");
+        txtId.trigger('select');
+        return;
     }
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
     showOrHideTfoot();
     _jqueryDefault.default("#btn-clear").trigger('click');
-    _jqueryDefault.default('#tbl-customers tbody tr').off('click').on('click', function() {
-        const id1 = _jqueryDefault.default(this).find("td:first-child").text();
-        const name1 = _jqueryDefault.default(this).find("td:nth-child(2)").text();
-        const address1 = _jqueryDefault.default(this).find("td:nth-child(3)").text();
-        txtId.val(id1);
-        txtId.attr('disabled', "true");
-        txtName.val(name1);
-        txtAddress.val(address1);
-        _jqueryDefault.default("#tbl-customers tbody tr").removeClass("selected");
-        _jqueryDefault.default(this).addClass('selected');
-    });
     _jqueryDefault.default(".trash").off('click').on('click', (eventData1)=>{
         if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData1.target).parents("tr").fadeOut(500, function() {
             _jqueryDefault.default(this).remove();
             showOrHideTfoot();
+            _jqueryDefault.default('#btn-clear').trigger('click');
         });
     });
 });
-function showOrHideTfoot() {
-    _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
-}
-_jqueryDefault.default('#btn-clear').on('click', ()=>{
+/* Table row selection event listner*/ _jqueryDefault.default('#tbl-customers tbody tr').on('click', 'tr', function() {
+    const txtId = _jqueryDefault.default('#txt-id');
+    const txtName = _jqueryDefault.default('#txt-name');
+    const txtAddress = _jqueryDefault.default('#txt-address');
+    const id = _jqueryDefault.default(this).find("td:first-child").text();
+    const name = _jqueryDefault.default(this).find("td:nth-child(2)").text();
+    const address = _jqueryDefault.default(this).find("td:nth-child(3)").text();
+    _jqueryDefault.default('#txt-id').val(id);
+    _jqueryDefault.default('#txt-id').attr('disabled', "true");
+    _jqueryDefault.default('#txt-name').val(name);
+    _jqueryDefault.default('#txt-address').val(address);
+    _jqueryDefault.default("#tbl-customers tbody tr").removeClass("selected");
+    _jqueryDefault.default(this).addClass('selected');
+});
+/* Table row deletion event listner */ _jqueryDefault.default("#tbl-customers tbody tr").on('click', '.trash', (eventData)=>{
+    if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData.target).parents("tr").fadeOut(500, function() {
+        _jqueryDefault.default(this).remove();
+        showOrHideTfoot();
+        _jqueryDefault.default('#btn-clear').trigger('click');
+    });
+});
+/* clear button event listner */ _jqueryDefault.default('#btn-clear').on('click', ()=>{
     _jqueryDefault.default("#tbl-customers tbody tr.selected").removeClass('selected');
     _jqueryDefault.default('#txt-id').attr('disabled', 'false');
     _jqueryDefault.default('#txt-id').removeAttr('disabled').trigger('focus');
 });
+function existCustomer(id) {
+    // let result: boolean = false;
+    // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
+    //     if($(elm).text() === id){
+    //         result = true;
+    //     }
+    // });
+    // return result ;
+    const ids = _jqueryDefault.default("#tbl-customers tbody tr td:first-child");
+    for(let i = 0; i < ids.length; i++){
+        if (_jqueryDefault.default(ids[i]).text() === id) return true;
+    }
+    return false;
+}
+function showOrHideTfoot() {
+    _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
+}
 
 },{"jquery":"igaHu","../img/trash.png":"cOtjz","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"igaHu":[function(require,module,exports) {
 /*!

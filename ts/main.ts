@@ -3,6 +3,7 @@ import '../img/trash.png';
 
 $('#txt-id').trigger('focus');
 
+/* Add or Update Row */
 $('#btn-save').on('click', (eventData) => {
 
     eventData.preventDefault();
@@ -19,22 +20,20 @@ $('#btn-save').on('click', (eventData) => {
     $('#txd-id, #txt-name, #txt-address').parent().removeClass('invalid');
 
 
-    // $('#txt-id, #txt-name, #txt-address').parent().removeClass('invalid');
+    if(!(/[A-Za-z .]/.test(address) && address.length > 3)){
+        txtAddress.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
+    if(!/[A-Za-z .]{3,}/.test(name)){
+        txtName.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
+    if(!/^C\d{3}$/.test(id.trim())){
+        txtId.parent().addClass('invalid').trigger('select');
+        valid = false;
+    }
 
-    // if(!/^C\d{3}$/.test(id.trim())){
-    //     txtId.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-    // if(!/[A-Za-z .]{3,}/.test(name)){
-    //     txtName.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-    // if(!(/[A-Za-z .]/.test(address) && address.length > 3)){
-    //     txtAddress.parent().addClass('invalid').trigger('select');
-    //     valid = false;
-    // }
-
-    // if(!valid) return;
+    if(!valid) return;
 
     if(txtId.attr('disabled')){
         const selectedRow = $("#tbl-customers tbody tr.selected");
@@ -43,22 +42,10 @@ $('#btn-save').on('click', (eventData) => {
         return;
     }
 
-    function existCustomer(id: string): boolean{
-        // let result: boolean = false;
-        // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
-        //     if($(elm).text() === id){
-        //         result = true;
-        //     }
-        // });
-        // return result ;
-
-        const ids = $("#tbl-customers tbody tr td:first-child");
-        for(let i=0; i< ids.length; i++){
-            if($(ids[i]).text() === id){
-                return true;
-            }
-        }
-        return false;
+    if(existCustomer(id)){
+        alert("Customer already exists");
+        txtId.trigger('select');
+        return;
     }
 
     const rowHtml = `
@@ -75,42 +62,74 @@ $('#btn-save').on('click', (eventData) => {
 
     $("#btn-clear").trigger('click');
 
-    $('#tbl-customers tbody tr').off('click').on('click', function() {
-          const id = $(this).find("td:first-child").text();
-          const name = $(this).find("td:nth-child(2)").text();
-          const address = $(this).find("td:nth-child(3)").text();
-
-          txtId.val(id);
-          txtId.attr('disabled', "true");
-          txtName.val(name);
-          txtAddress.val(address);
-
-          $("#tbl-customers tbody tr").removeClass("selected");
-          $(this).addClass('selected');
-    });
-
 
     $(".trash").off('click').on('click', (eventData) => {
         if(confirm('Are you sure to delete ?')){
             $(eventData.target).parents("tr").fadeOut(500, function(){
                 $(this).remove();
                 showOrHideTfoot();
+                $('#btn-clear').trigger('click');
             });
         }
     });
-
-
 });
 
+/* Table row selection event listner*/
+$('#tbl-customers tbody tr').on('click', 'tr', function() {
+    const txtId = $('#txt-id');
+    const txtName = $('#txt-name');
+    const txtAddress = $('#txt-address');
 
+    const id = $(this).find("td:first-child").text();
+    const name = $(this).find("td:nth-child(2)").text();
+    const address = $(this).find("td:nth-child(3)").text();
 
+    $('#txt-id').val(id);
+    $('#txt-id').attr('disabled', "true");
+    $('#txt-name').val(name);
+    $('#txt-address').val(address);
 
-function showOrHideTfoot(){
-    ($('#tbl-customers tbody tr').length > 0)? $('#tbl-customers tfoot').hide(): $('#tbl-customers tfoot').show();
-}
+    $("#tbl-customers tbody tr").removeClass("selected");
+    $(this).addClass('selected');
+});
 
+/* Table row deletion event listner */
+$("#tbl-customers tbody tr").on('click', '.trash', (eventData) => {
+    if(confirm('Are you sure to delete ?')){
+        $(eventData.target).parents("tr").fadeOut(500, function(){
+            $(this).remove();
+            showOrHideTfoot();
+            $('#btn-clear').trigger('click');
+        });
+    }
+});
+
+/* clear button event listner */
 $('#btn-clear').on('click', ()=> {
     $("#tbl-customers tbody tr.selected").removeClass('selected');
     $('#txt-id').attr('disabled', 'false');
     $('#txt-id').removeAttr('disabled').trigger('focus');
 });
+
+function existCustomer(id: string): boolean{
+    // let result: boolean = false;
+    // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
+    //     if($(elm).text() === id){
+    //         result = true;
+    //     }
+    // });
+    // return result ;
+
+    const ids = $("#tbl-customers tbody tr td:first-child");
+    for(let i=0; i< ids.length; i++){
+        if($(ids[i]).text() === id){
+            return true;
+        }
+    }
+    return false;
+}
+
+function showOrHideTfoot(){
+    ($('#tbl-customers tbody tr').length > 0)? $('#tbl-customers tfoot').hide(): $('#tbl-customers tfoot').show();
+}
+
