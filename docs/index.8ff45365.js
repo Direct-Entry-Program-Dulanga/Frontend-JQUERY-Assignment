@@ -460,7 +460,9 @@ var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 var _trashPng = require("../img/trash.png");
 const pageSize = calculatePageSize();
-_jqueryDefault.default('#txt-id').trigger('focus');
+let pages = 1;
+let selectedPage = 1;
+/* start up focus */ _jqueryDefault.default('#txt-id').trigger('focus');
 /* Add or Update Row */ _jqueryDefault.default('#btn-save').on('click', (eventData)=>{
     eventData.preventDefault();
     const txtId = _jqueryDefault.default('#txt-id');
@@ -498,6 +500,9 @@ _jqueryDefault.default('#txt-id').trigger('focus');
     const rowHtml = `\n        <tr>\n            <td>${id}</td>\n            <td>${name}</td>\n            <td>${address}</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
     _jqueryDefault.default('#tbl-customers tbody').append(rowHtml);
     showOrHideTfoot();
+    showOrHidePagination();
+    initPagination();
+    navigateToPage(pages);
     _jqueryDefault.default("#btn-clear").trigger('click');
     _jqueryDefault.default(".trash").off('click').on('click', (eventData1)=>{
         if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData1.target).parents("tr").fadeOut(500, function() {
@@ -535,13 +540,6 @@ _jqueryDefault.default('#txt-id').trigger('focus');
     _jqueryDefault.default('#txt-id').removeAttr('disabled').trigger('focus');
 });
 /* Other utility  */ function existCustomer(id) {
-    // let result: boolean = false;
-    // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
-    //     if($(elm).text() === id){
-    //         result = true;
-    //     }
-    // });
-    // return result ;
     const ids = _jqueryDefault.default("#tbl-customers tbody tr td:first-child");
     for(let i = 0; i < ids.length; i++){
         if (_jqueryDefault.default(ids[i]).text() === id) return true;
@@ -549,27 +547,67 @@ _jqueryDefault.default('#txt-id').trigger('focus');
     return false;
 }
 /* Table footer hide or show */ function showOrHideTfoot() {
-    _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
+    const tfoot = _jqueryDefault.default('#tbl-customers tfoot');
+    _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? tfoot.hide() : tfoot.show();
 }
 function showOrHidePagination() {
     const nav = _jqueryDefault.default("nav");
     _jqueryDefault.default("#tbl-customers tbody tr").length > pageSize ? nav.removeClass("d-none") : nav.addClass("d-none");
 }
 function calculatePageSize() {
-    _jqueryDefault.default("#tbl-customers tfoot").hide();
-    const rowHtml = `\n        <tr>\n            <td>C001</td>\n            <td>Dulanga</td>\n            <td>Colombo</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
+    if (_jqueryDefault.default(window).width() < 992) return 7;
     const tbl = _jqueryDefault.default("#tbl-customers");
+    const tFoot = _jqueryDefault.default("#tbl-customers tfoot");
+    const rowHtml = `\n        <tr class="dummy-data">\n            <td>C001</td>\n            <td>Manoj</td>\n            <td>Dehiwala</td>\n            <td><div class="trash"></div></td>\n        </tr>\n    `;
+    const nav = _jqueryDefault.default('nav');
+    nav.removeClass('d-none');
+    const top = _jqueryDefault.default(window).height() - (_jqueryDefault.default('footer').height() + nav.outerHeight(true));
+    nav.addClass('d-none');
+    tFoot.hide();
+    tbl.find('tbody tr').hide();
     while(true){
         tbl.find('tbody').append(rowHtml);
         const bottom = tbl.outerHeight(true) + tbl.offset().top;
-        const top = _jqueryDefault.default(window).height() - (_jqueryDefault.default('footer').height() + 47);
         if (bottom >= top) {
-            const pageSize1 = tbl.find("tbody tr").length - 1;
-            tbl.find('tbody tr').remove();
-            tfoot.show();
+            const pageSize1 = tbl.find("tbody tr.dummy-data").length - 1;
+            tbl.find("tbody tr.dummy-data").remove();
+            if (tbl.find("tbody tr").length === 0) tFoot.show();
             return pageSize1;
         }
     }
+}
+function initPagination() {
+    const totalRows = _jqueryDefault.default("#tbl-customers tbody tr").length;
+    pages = Math.ceil(totalRows / pageSize);
+    let paginationHtml = `\n                        <li class="page-item">\n                            <a class="page-link" href="#">\n                                <i class="fas fa-backward"></i>\n                            </a>\n                        </li>`;
+    for(let i = 0; i < pages; i++)paginationHtml += `<li class="page-item"><a class="page-link" href="#">${i + 1}</a></li>`;
+    paginationHtml += `\n                        <li class="page-item">\n                            <a class="page-link" href="#">\n                                <i class="fas fa-forward"></i>\n                            </a>\n                        </li>\n    `;
+    _jqueryDefault.default(".pagination").html(paginationHtml);
+    _jqueryDefault.default(".page-item:first-child").on('click', function() {
+        if (_jqueryDefault.default(this).hasClass("disabled")) return;
+        navigateToPage(selectedPage - 1);
+    });
+    _jqueryDefault.default(".page-item:last-child").on('click', function() {
+        if (_jqueryDefault.default(this).hasClass("disabled")) return;
+        navigateToPage(selectedPage + 1);
+    });
+    _jqueryDefault.default(".page-item:not(.page-item:first-child, .page-item:last-child)").on('click', function(eventData) {
+        navigateToPage(+_jqueryDefault.default(this).text());
+    });
+}
+function navigateToPage(page) {
+    _jqueryDefault.default(".pagination .page-item").each((index, elm)=>{
+        if (+_jqueryDefault.default(elm).text() === page) {
+            _jqueryDefault.default(elm).addClass("active");
+            return false;
+        }
+    });
+    const rows = _jqueryDefault.default("#tbl-customers tbody tr");
+    const start = (page - 1) * pageSize;
+    rows.each((index, elm)=>{
+        if (index >= start && index <= start + pageSize) _jqueryDefault.default(elm).show();
+        else _jqueryDefault.default(elm).hide();
+    });
 }
 
 },{"jquery":"igaHu","../img/trash.png":"cOtjz","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"igaHu":[function(require,module,exports) {

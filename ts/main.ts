@@ -2,7 +2,10 @@ import $ from 'jquery';
 import '../img/trash.png';
 
 const pageSize = calculatePageSize();
+let pages: number = 1;
+let selectedPage = 1;
 
+/* start up focus */
 $('#txt-id').trigger('focus');
 
 /* Add or Update Row */
@@ -61,6 +64,9 @@ $('#btn-save').on('click', (eventData) => {
 
     $('#tbl-customers tbody').append(rowHtml);
     showOrHideTfoot();
+    showOrHidePagination();
+    initPagination();
+    navigateToPage(pages);
 
     $("#btn-clear").trigger('click');
 
@@ -116,14 +122,6 @@ $('#btn-clear').on('click', ()=> {
 
 /* Other utility  */
 function existCustomer(id: string): boolean{
-    // let result: boolean = false;
-    // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
-    //     if($(elm).text() === id){
-    //         result = true;
-    //     }
-    // });
-    // return result ;
-
     const ids = $("#tbl-customers tbody tr td:first-child");
     for(let i=0; i< ids.length; i++){
         if($(ids[i]).text() === id){
@@ -135,7 +133,8 @@ function existCustomer(id: string): boolean{
 
 /* Table footer hide or show */
 function showOrHideTfoot(){
-    ($('#tbl-customers tbody tr').length > 0)? $('#tbl-customers tfoot').hide(): $('#tbl-customers tfoot').show();
+    const tfoot = $('#tbl-customers tfoot');
+    ($('#tbl-customers tbody tr').length > 0) ? tfoot.hide() : tfoot.show();
 }
 
 function showOrHidePagination(){
@@ -144,29 +143,104 @@ function showOrHidePagination(){
 }
 
 function calculatePageSize(): number{
-    $("#tbl-customers tfoot").hide();
-
-    const rowHtml = `
-        <tr>
-            <td>C001</td>
-            <td>Dulanga</td>
-            <td>Colombo</td>
-            <td><div class="trash"></div></td> 
-        </tr>
-    `;
+    if ($(window).width()! < 992) {
+        return 7;
+    }
 
     const tbl = $("#tbl-customers");
-    while(true){
+    const tFoot = $("#tbl-customers tfoot");
+    const rowHtml = `
+        <tr class="dummy-data">
+            <td>C001</td>
+            <td>Manoj</td>
+            <td>Dehiwala</td>
+            <td><div class="trash"></div></td>
+        </tr>
+    `;
+    const nav = $('nav');
+    nav.removeClass('d-none');
+
+    const top = $(window).height()! - ($('footer').height()! + nav.outerHeight(true)!);
+
+    nav.addClass('d-none');
+    tFoot.hide();
+
+    tbl.find('tbody tr').hide();
+
+    while (true) {
         tbl.find('tbody').append(rowHtml);
         const bottom = tbl.outerHeight(true)! + tbl.offset()!.top;
-        const top = $(window).height()! - ($('footer').height()! + 47);
-        
-        if(bottom >= top){
-            const pageSize = tbl.find("tbody tr").length -1;
-            tbl.find('tbody tr').remove();
-            tfoot.show();
+
+        if (bottom >= top) {
+            const pageSize = tbl.find("tbody tr.dummy-data").length - 1;
+
+            tbl.find("tbody tr.dummy-data").remove();
+
+            if (tbl.find("tbody tr").length === 0) tFoot.show();
             return pageSize;
         }
     }
 }
+
+function initPagination(): void {
+    const totalRows = $("#tbl-customers tbody tr").length;
+    pages = Math.ceil(totalRows / pageSize);
+
+    let paginationHtml = `
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-backward"></i>
+                            </a>
+                        </li>`;
+
+    for (let i = 0; i < pages; i++) {
+        paginationHtml += `<li class="page-item"><a class="page-link" href="#">${i + 1}</a></li>`;
+    }
+
+    paginationHtml += `
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-forward"></i>
+                            </a>
+                        </li>
+    `;
+
+    $(".pagination").html(paginationHtml);
+
+    $(".page-item:first-child").on('click', function(){
+        if ($(this).hasClass("disabled")) return;
+        navigateToPage(selectedPage - 1)
+    });
+
+    $(".page-item:last-child").on('click', function(){
+        if ($(this).hasClass("disabled")) return;
+        navigateToPage(selectedPage +1);
+    });
+
+    $(".page-item:not(.page-item:first-child, .page-item:last-child)").on('click', function(eventData){
+        navigateToPage(+$(this).text());
+    } );
+}
+
+
+function navigateToPage(page: number): void {
+    $(".pagination .page-item").each((index, elm) => {
+        if(+$(elm).text() === page){
+            $(elm).addClass("active");
+            return false;
+        }
+    });
+
+    const rows = $("#tbl-customers tbody tr");
+    const start = (page -1) * pageSize;
+
+    rows.each((index, elm) => {
+        if(index >= start && index <= (start + pageSize)){
+            $(elm).show();
+        }else{
+            $(elm).hide();
+        }
+    });
+}
+
 
