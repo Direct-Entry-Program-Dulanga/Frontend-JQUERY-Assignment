@@ -9,6 +9,11 @@
   ],
   "author": "Dulanga Nimesha <idulanganimesha@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Direct-Entry-Program-Dulanga/Frontend-JQUERY-Assignment.git"
+  },
+  "homepage": "https://github.com/Direct-Entry-Program-Dulanga/Frontend-JQUERY-Assignment#readme",
   "scripts": {
     "watch": "tsc --watch",
     "clean": "rm -rf ./docs",
