@@ -459,6 +459,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _jquery = require("jquery");
 var _jqueryDefault = parcelHelpers.interopDefault(_jquery);
 var _trashPng = require("../img/trash.png");
+const pageSize = calculatePageSize();
 _jqueryDefault.default('#txt-id').trigger('focus');
 /* Add or Update Row */ _jqueryDefault.default('#btn-save').on('click', (eventData)=>{
     eventData.preventDefault();
@@ -524,15 +525,16 @@ _jqueryDefault.default('#txt-id').trigger('focus');
     if (confirm('Are you sure to delete ?')) _jqueryDefault.default(eventData.target).parents("tr").fadeOut(500, function() {
         _jqueryDefault.default(this).remove();
         showOrHideTfoot();
+        showOrHidePagination();
         _jqueryDefault.default('#btn-clear').trigger('click');
     });
 });
-/* clear button event listner */ _jqueryDefault.default('#btn-clear').on('click', ()=>{
+/* Clear button event listner */ _jqueryDefault.default('#btn-clear').on('click', ()=>{
     _jqueryDefault.default("#tbl-customers tbody tr.selected").removeClass('selected');
     _jqueryDefault.default('#txt-id').attr('disabled', 'false');
     _jqueryDefault.default('#txt-id').removeAttr('disabled').trigger('focus');
 });
-function existCustomer(id) {
+/* Other utility  */ function existCustomer(id) {
     // let result: boolean = false;
     // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
     //     if($(elm).text() === id){
@@ -546,8 +548,28 @@ function existCustomer(id) {
     }
     return false;
 }
-function showOrHideTfoot() {
+/* Table footer hide or show */ function showOrHideTfoot() {
     _jqueryDefault.default('#tbl-customers tbody tr').length > 0 ? _jqueryDefault.default('#tbl-customers tfoot').hide() : _jqueryDefault.default('#tbl-customers tfoot').show();
+}
+function showOrHidePagination() {
+    const nav = _jqueryDefault.default("nav");
+    _jqueryDefault.default("#tbl-customers tbody tr").length > pageSize ? nav.removeClass("d-none") : nav.addClass("d-none");
+}
+function calculatePageSize() {
+    _jqueryDefault.default("#tbl-customers tfoot").hide();
+    const rowHtml = `\n        <tr>\n            <td>C001</td>\n            <td>Dulanga</td>\n            <td>Colombo</td>\n            <td><div class="trash"></div></td> \n        </tr>\n    `;
+    const tbl = _jqueryDefault.default("#tbl-customers");
+    while(true){
+        tbl.find('tbody').append(rowHtml);
+        const bottom = tbl.outerHeight(true) + tbl.offset().top;
+        const top = _jqueryDefault.default(window).height() - (_jqueryDefault.default('footer').height() + 47);
+        if (bottom >= top) {
+            const pageSize1 = tbl.find("tbody tr").length - 1;
+            tbl.find('tbody tr').remove();
+            tfoot.show();
+            return pageSize1;
+        }
+    }
 }
 
 },{"jquery":"igaHu","../img/trash.png":"cOtjz","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"igaHu":[function(require,module,exports) {

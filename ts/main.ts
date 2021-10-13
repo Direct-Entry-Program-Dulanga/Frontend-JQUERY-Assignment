@@ -1,6 +1,8 @@
 import $ from 'jquery';
 import '../img/trash.png';
 
+const pageSize = calculatePageSize();
+
 $('#txt-id').trigger('focus');
 
 /* Add or Update Row */
@@ -99,18 +101,20 @@ $("#tbl-customers tbody tr").on('click', '.trash', (eventData) => {
         $(eventData.target).parents("tr").fadeOut(500, function(){
             $(this).remove();
             showOrHideTfoot();
+            showOrHidePagination();
             $('#btn-clear').trigger('click');
         });
     }
 });
 
-/* clear button event listner */
+/* Clear button event listner */
 $('#btn-clear').on('click', ()=> {
     $("#tbl-customers tbody tr.selected").removeClass('selected');
     $('#txt-id').attr('disabled', 'false');
     $('#txt-id').removeAttr('disabled').trigger('focus');
 });
 
+/* Other utility  */
 function existCustomer(id: string): boolean{
     // let result: boolean = false;
     // $("#tbl-customers tbody tr td:first-child").each((index, elm) => {
@@ -129,7 +133,40 @@ function existCustomer(id: string): boolean{
     return false;
 }
 
+/* Table footer hide or show */
 function showOrHideTfoot(){
     ($('#tbl-customers tbody tr').length > 0)? $('#tbl-customers tfoot').hide(): $('#tbl-customers tfoot').show();
+}
+
+function showOrHidePagination(){
+    const nav = $("nav");
+    ($("#tbl-customers tbody tr").length > pageSize)? nav.removeClass("d-none"):nav.addClass("d-none")
+}
+
+function calculatePageSize(): number{
+    $("#tbl-customers tfoot").hide();
+
+    const rowHtml = `
+        <tr>
+            <td>C001</td>
+            <td>Dulanga</td>
+            <td>Colombo</td>
+            <td><div class="trash"></div></td> 
+        </tr>
+    `;
+
+    const tbl = $("#tbl-customers");
+    while(true){
+        tbl.find('tbody').append(rowHtml);
+        const bottom = tbl.outerHeight(true)! + tbl.offset()!.top;
+        const top = $(window).height()! - ($('footer').height()! + 47);
+        
+        if(bottom >= top){
+            const pageSize = tbl.find("tbody tr").length -1;
+            tbl.find('tbody tr').remove();
+            tfoot.show();
+            return pageSize;
+        }
+    }
 }
 
