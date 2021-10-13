@@ -1,0 +1,25 @@
+{
+  "name": "frontend-assignment",
+  "version": "1.0.0",
+  "description": "JQUERY with HTML and CSS",
+  "keywords": [
+    "HTML",
+    "CSS",
+    "JQUERY"
+  ],
+  "author": "Dulanga Nimesha <idulanganimesha@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc --watch",
+    "clean": "rm -rf ./docs",
+    "start": "parcel index.html --dist-dir ./docs/",
+    "build": "rm -rf ./docs && parcel build index.html --dist-dir ./docs/"
+  },
+  "devDependencies": {
+    "parcel": "^2.0.0-rc.0"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "bootstrap": "^5.1.3"
+  }
+}
